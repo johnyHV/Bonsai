@@ -2,11 +2,11 @@
 #include <Ethernet.h>
 #include <DHT.h>
 #include <SD.h>
-
+#include <avr/wdt.h>
 
 // Ethernet config
 //---------------------------------------------------------------------------------
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xAD };
 //IPAddress ip(158,193,86,96);
 EthernetServer server(80);
 //IPAddress brana( 158,193,86,126);
@@ -33,16 +33,16 @@ File webFile;               // the web page file on the SD card
 
 void setup() {
     // Open serial communications and wait for port to open:
-    //Serial.begin(9600);
+    Serial.begin(9600);
 
     // disable Ethernet chip
     pinMode(10, OUTPUT);
     digitalWrite(10, HIGH);
     
     // initialize SD card
-    //Serial.println("Initializing SD card...");
+    Serial.println("Initializing SD card...");
     if (!SD.begin(4)) {
-        //Serial.println("ERROR - SD card initialization failed!");
+        Serial.println("ERROR - SD card initialization failed!");
         return;    // init failed
     }
     //Serial.println("SUCCESS - SD card initialized.");
@@ -57,11 +57,11 @@ void setup() {
     //Serial.println("Getting IP adres wia DHCP");
     //Ethernet.begin(mac, ip, brana, maska);
     if (Ethernet.begin(mac) == 0) {
-       //Serial.println("Failed to configure Ethernet using DHCP");
-//       for(;;)
-//         ;
+       Serial.println("Failed to configure Ethernet using DHCP");
+       for(;;)
+         ;
      }
-  
+     Serial.println(Ethernet.localIP());
     // Configuration digital I/O
     pinMode(relay,OUTPUT);
     digitalWrite(relay,LOW);
@@ -72,11 +72,14 @@ void setup() {
     dht.begin();
     server.begin();
 //  Serial.println(Ethernet.localIP());
+    wdt_enable (WDTO_8S);  // reset after one second, if no "pat the dog" received
+
 }
 
 
 void loop() {
-  
+    wdt_reset();
+
   // listen for incoming clients
   EthernetClient client = server.available();
   if (client) {
@@ -176,6 +179,8 @@ void loop() {
 // send the XML file containing analog value
 void json_response(EthernetClient client)
 {
+    wdt_reset();
+
   String buffer_value[4] = {">80%",">50%",">25%",">10%"};
 
   //float tempC = (((((analogRead(A0) / 1023.0) * 5) * 100.0) - 273.15) ); 
