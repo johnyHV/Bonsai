@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <title>Bonsai - Carmona Microphylla</title>
+  <style>
+  
+  </style>
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+</head>
+<body>
+<center>
+ <h1>Bonsai - Carmona Microphylla</h1>
+<table id="data">
+	<tr>
+		<th>Cas: </th><td id="time"></td>
+	</tr>
+	<tr>
+		<th>Teplota: </th><td id="temp"></td>
+	</tr>
+	<tr>
+		<th>Vlhkost pody: </th><td id="humidity_p"></td>
+	</tr>
+	<tr>
+		<th>Vlhkost vzduchu: </th><td id="humidity_v"></td>
+	</tr>
+	<tr>
+		<th>Zavlazovanie: </th><td id="relatko"></td>
+	</tr>
+</table>
+
+<br />
+<a href='http://158.193.86.96?relayon'><button style='background:lightgreen;width:10%;height:40px'>Zapnut zavlazovanie</button></a>
+<a href='http://158.193.86.96?relayoff'><button style='background:red;width:10%;height:40px'>Vypnut zavlazovanie</button></a>
+
+<br /><br />
+<img src="http://johnyhv2.tym.sk/bonsai.jpg" alt="Carmona Microphylla">
+
+<script>
+(function() {
+	var reqData = function() {
+		jQuery.ajax({
+            url: 'http://158.193.86.96/json_input',
+            type: 'GET',
+            success: sucData
+        });
+	}
+	/* printing categosies */
+	var sucData = function(data) {
+        console.log(data);
+		$("#time").text(data.hour+":"+data.min+":"+data.sec);
+		$("#temp").text(data.temp);
+		$("#humidity_p").text(data.humidity_p);
+		$("#humidity_v").text(data.humidity_v);
+		$("#relatko").text(data.relatko);
+	}
+reqData();
+var t=setTimeout(function(){reqData();},5000)
+})();
+</script>
+
+</center>
+</body>
+</html>
